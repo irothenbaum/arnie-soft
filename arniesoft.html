@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Arnie Soft 2.0</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial;
+        }
+
+        h1 {
+            margin-bottom:0.5rem
+        }
+
+        h2.subheader {
+            font-size: 18px;
+            color: rgba(0,0,0,0.5);
+            font-style: italic;
+        }
+
+        #main {
+            max-width: 1000px;
+            text-align: center;
+            margin: 1rem auto;
+        }
+
+        #drop-pad {
+            width: 80%;
+            height: 10rem;
+            margin: 1rem auto;
+            border-radius: 40px;
+            border: 5px dashed rgba(0,0,0,0.3);
+            position: relative;
+            transition: all 0.2s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            color: rgba(0,0,0,0.5)
+        }
+
+        #drop-pad:hover {
+            border-color: rgba(0,0,0,0.5);
+            color: rgba(0,0,0,0.8);
+            background-color: rgba(0,0,0,0.1);
+        }
+
+        #drop-pad:after {
+            content:"Drag and drop a file to begin";
+        }
+
+        #file-input {
+            border-bottom: 2px solid rgba(0,0,0,0.5);
+            padding: 8px;
+            border-radius: 4px;
+            background-color: rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<section id="header">
+    <div id="logo-container">
+        <img src="https://asbaumhosting.com/images/asb.gif" />
+    </div>
+</section>
+
+<section id="main">
+    <h1>Arnie Soft 2.0</h1>
+    <h2 class="subheader">Now with extra Arnie!</h2>
+    <div id="input-container">
+        <div id="drop-pad">
+
+        </div>
+
+        <div id="">
+            <label for="file-input">Or Select a file</label>
+            <input type="file" id="file-input" accept=".xml">
+        </div>
+    </div>
+
+    <div id="output-container">
+
+    </div>
+</section>
+
+<script type="text/javascript">
+    (function($) {
+        var $fileInput;
+
+        $(document).ready(function() {
+            $fileInput = $('#file-input');
+
+            $fileInput.change(handleFileChange)
+        });
+
+        function handleFileChange(e) {
+            console.log(e.target.files)
+        }
+    })(jQuery)
+</script>
+</body>
+</html>
