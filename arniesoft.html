@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Arnie Soft 2.0</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap" rel="stylesheet">
+
+    <script src="https://kit.fontawesome.com/f8650deef4.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
     <style>
         html, body {
@@ -10,7 +14,12 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            font-family: Arial;
+            font-family: 'Open Sans', Arial sans-serif;
+            background-color: white;
+        }
+
+        * {
+            transition: all 0.2s ease-out;
         }
 
         h1 {
@@ -26,7 +35,20 @@
         #main {
             max-width: 1000px;
             text-align: center;
-            margin: 1rem auto;
+            margin: 0 auto;
+            padding: 1rem 0;
+        }
+
+        #header {
+            display: flex;
+            align-items: flex-start;
+            margin-right: 111px;
+
+            text-align: center;
+        }
+
+        #header div {
+            width: 100%;
         }
 
         #drop-pad {
@@ -36,7 +58,6 @@
             border-radius: 40px;
             border: 5px dashed rgba(0,0,0,0.3);
             position: relative;
-            transition: all 0.2s ease-out;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -44,14 +65,19 @@
             color: rgba(0,0,0,0.5)
         }
 
-        #drop-pad:hover {
+        #drop-pad:hover, #drop-pad.hovered {
             border-color: rgba(0,0,0,0.5);
             color: rgba(0,0,0,0.8);
             background-color: rgba(0,0,0,0.1);
         }
 
-        #drop-pad:after {
-            content:"Drag and drop a file to begin";
+        #drop-pad div {
+            font-size: 18px;
+        }
+
+        #drop-pad div i {
+            margin-right: 0.5rem;
+            font-size: 1.2em
         }
 
         #file-input {
@@ -61,47 +87,325 @@
             background-color: rgba(0,0,0,0.1);
             cursor: pointer;
         }
+
+        #download-button {
+            background-color: #40c057;
+            font-weight: bolder;
+            color: white;
+            padding: 8px 18px 8px 12px;
+            border-radius: 8px;
+            border:none;
+            border-bottom: 2px solid #148829;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        #download-button:hover {
+            background-color: #68de7d;
+        }
+
+        #download-button i {
+            display: inline-block;
+            margin-right: 0.5rem;
+            font-size: 1.2em;
+        }
+
+        #output-container {
+            margin-top: 2rem;
+        }
+
+        table {
+            width: 100%;
+            padding: 0;
+            margin: 1rem;
+            text-align: left;
+            border-spacing: 0;
+        }
+
+        thead {
+            background-color: #ff9966;
+        }
+
+        tr {
+            margin: 0;
+            padding: 0;
+        }
+
+        th, td {
+            margin: 0;
+            padding: 4px 8px;
+            border-bottom: 1px solid rgba(0,0,0,0.3);
+        }
+
+        th {
+            border-color: #ca6330;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(0,0,0, 0.1);
+        }
+
     </style>
 </head>
 <body>
-<section id="header">
-    <div id="logo-container">
+
+<div id="main">
+    <section id="header">
         <img src="https://asbaumhosting.com/images/asb.gif" />
-    </div>
-</section>
-
-<section id="main">
-    <h1>Arnie Soft 2.0</h1>
-    <h2 class="subheader">Now with extra Arnie!</h2>
-    <div id="input-container">
-        <div id="drop-pad">
-
+        <div>
+            <h1>Arnie Soft 2.0</h1>
+            <h2 class="subheader">Now with extra Arnie!</h2>
         </div>
-
-        <div id="">
+    </section>
+    <section id="input-container">
+        <div id="drop-pad">
+            <div>
+                <i class="fa fa-file"></i>
+                <span> Drag and drop a file to begin </span>
+            </div>
+        </div>
+        <div>
             <label for="file-input">Or Select a file</label>
             <input type="file" id="file-input" accept=".xml">
         </div>
-    </div>
+    </section>
 
-    <div id="output-container">
+    <section id="output-container">
 
-    </div>
-</section>
+    </section>
+</div>
 
 <script type="text/javascript">
+    class CallLog {
+        /**
+         * @param {Array<Call>} calls
+         * @param {string} name
+         */
+        constructor(calls, name) {
+            this.calls = calls;
+            this.name = name;
+        }
+
+        downloadCSV() {
+            let buffer = '';
+
+            // Should we have CSV titles and what not?
+
+            buffer += this.calls.map(c => c.toCSVString()).join('\n');
+
+            let element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(buffer));
+            element.setAttribute('download', this.name + '.csv');
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+    }
+
+    function zeroPad(number) {
+        number = number || 0;
+        return number < 10 ? ('0' + number) : number
+    }
+
+    function splitByBase(num, base) {
+        let smallerMag = num % base;
+        let largerMag = (num - smallerMag) / base;
+
+        return [largerMag, smallerMag]
+    }
+
+    const TYPE_MAP = {
+        '1': 'Incoming',
+        '2': 'Missed',
+        '3': 'Outgoing'
+    };
+
+    class Call {
+        /**
+         * @param {string} phoneNumber
+         * @param {string} contactName
+         * @param {number} type
+         * @param {number} duration
+         * @param {number} timestamp
+         * @param {string} readableDate
+         */
+        constructor(phoneNumber, contactName, type, duration, timestamp, readableDate) {
+            this.phone = phoneNumber;
+            this.contact = contactName;
+            this.duration = duration;
+            this.timestamp = timestamp;
+            this.dateString = readableDate;
+            this.type = type;
+            this.typeString = TYPE_MAP[this.type] || `UNKNOWN ${this.type}`;
+
+            // create our duration string
+            let hours, minutes, seconds;
+            [minutes, seconds] = splitByBase(this.duration, 60);
+            if (minutes > 60) {
+                [hours, minutes] = splitByBase(minutes, 60)
+            }
+            this.durationString = `${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)}`
+        }
+
+        /**
+         * @param {Array<string>?} order
+         * @returns {string}
+         */
+        toCSVString(order) {
+            return `"${this.toArray(order).join('","')}"`;
+        }
+
+        /**
+         * @param {Array<string>?} order
+         * @returns {Array<string>}
+         */
+        toArray(order) {
+            order = order || ['dateString', 'contact', 'phone', 'typeString', 'durationString'];
+            return order.map(key => this[key])
+        }
+
+        /**
+         * @param {ChildNode} node
+         * @constructor
+         */
+        static FromCallNode(node) {
+            return new Call(
+                node.getAttribute('number'),
+                node.getAttribute('contact_name'),
+                node.getAttribute('type'),
+                node.getAttribute('duration'),
+                node.getAttribute('date'),
+                node.getAttribute('readable_date'),
+            );
+        }
+
+    }
+
     (function($) {
-        var $fileInput;
+        let $fileInput;
+        let $dropPad;
+
+        let $outputContainer;
 
         $(document).ready(function() {
             $fileInput = $('#file-input');
+            $dropPad = $('#drop-pad');
+            $outputContainer = $('#output-container');
 
-            $fileInput.change(handleFileChange)
+            $dropPad.on('dragover', e => {e.preventDefault(); $dropPad.addClass('hovered'); } );
+            $dropPad.on('dragleave', e => {e.preventDefault(); $dropPad.removeClass('hovered'); } );
+            $dropPad.on('drop', handleDropEvent);
+            $fileInput.change(e => loadFile(e.target.files[0]))
         });
 
-        function handleFileChange(e) {
-            console.log(e.target.files)
+        // -------------------------------------------------------------------------------
+        // Handling the file drop event
+        /**
+         * @param {*} e
+         */
+        function handleDropEvent(e) {
+            e.preventDefault();
+
+            let dataTransfer = e.originalEvent.dataTransfer;
+            console.log(dataTransfer);
+            let file;
+            if (dataTransfer.items) {
+                let item = [...dataTransfer.items].find(i => i.kind === 'file');
+                if (item) {
+                    file = item.getAsFile()
+                }
+            } else {
+                file = dataTransfer.files[0]
+            }
+
+            $dropPad.removeClass('hovered');
+            loadFile(file)
         }
+
+        // -------------------------------------------------------------------------------
+        // Load a generic file with a file
+
+        /**
+         * @param {File} file
+         */
+        function loadFile(file) {
+            let reader = new FileReader();
+
+            reader.onload = function () {
+                let parser = new DOMParser();
+                let xmlDoc = parser.parseFromString(reader.result, "text/xml");
+
+                window.test= xmlDoc;
+
+                let callNodes = xmlDoc.getElementsByTagName('call');
+
+                let calls = [...callNodes].map(Call.FromCallNode);
+
+                // 4 = ".xml".length  --  we're just stripping the file extension
+                renderWithNewLog(new CallLog(calls, file.name.substr(0, file.name.length-4)))
+            };
+
+            reader.readAsText(file)
+        }
+
+        // -------------------------------------------------------------------------------
+        // Handle updating the UI with the new log information
+
+        function renderWithNewLog(log) {
+            // store it to our global
+            window.LOG = log;
+
+            $outputContainer.empty();
+
+            $outputContainer.append(`<h2>${log.name}</h2>`);
+
+            // create a download link
+            $outputContainer.append(renderDownloadLink(log));
+
+            // create a preview table
+            $outputContainer.append(renderPreview(log));
+
+        }
+
+        // -------------------------------------------------------------------------------
+        // Create the preview table
+
+        /**
+         * @param {CallLog} log
+         * @returns {*|jQuery|HTMLElement}
+         */
+        function renderPreview(log) {
+            let $table = $('<table />');
+
+            let $head = $(`<thead><tr>${['#','Date', 'Contact', 'Phone','Status','Duration'].map(l => `<th>${l}</th>`)}</tr></thead>`);
+
+            let $body = $('<tbody />');
+            $body.append(log.calls.map((c, index) => `<tr>${[index+1, ...c.toArray()].map(v => `<td>${v}</td>`)}</tr>`));
+            $table.append([$head, $body]);
+
+            return $table
+        }
+
+        // -------------------------------------------------------------------------------
+        // Create the download link
+        /**
+         *
+         * @param {CallLog} log
+         */
+        function renderDownloadLink(log) {
+            let button = $('<button id="download-button" />');
+            button.append($('<i class="fas fa-file-download" />'));
+            button.append($('<span>Download Spreadsheet</span>'));
+
+            button.click(() => log.downloadCSV());
+
+            return button
+        }
+
     })(jQuery)
 </script>
 </body>
