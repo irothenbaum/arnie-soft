@@ -1,0 +1,25 @@
+{
+  "name": "arnie-soft",
+  "version": "1.0.0",
+  "description": "",
+  "main": "thermostatCheck.js",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "gmail-send": "^1.8.10",
+    "selenium-webdriver": "^4.0.0-alpha.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/irothenbaum/arnie-soft.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/irothenbaum/arnie-soft/issues"
+  },
+  "homepage": "https://github.com/irothenbaum/arnie-soft#readme"
+}

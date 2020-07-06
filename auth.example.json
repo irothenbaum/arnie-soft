@@ -1,0 +1,8 @@
+{
+  "target": "some-string",
+  "gmail": {
+    "user": "johndoe@example.com",
+    "pass": "P@ssw0rd",
+    "to": "jandoe@example.com"
+  }
+}
