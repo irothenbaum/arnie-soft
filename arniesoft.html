@@ -237,8 +237,8 @@
             this.phone = phoneNumber;
             this.contact = contactName;
             this.duration = duration;
-            this.timestamp = timestamp;
-            this.dateString = readableDate;
+            this.timestamp = parseInt(timestamp);
+            this.dateString = (new Date(this.timestamp)).toString();
             this.type = type;
             this.typeString = TYPE_MAP[this.type] || `UNKNOWN ${this.type}`;
 
