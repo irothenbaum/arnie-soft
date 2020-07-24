@@ -8,6 +8,7 @@
 
     <script src="https://kit.fontawesome.com/f8650deef4.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
     <style>
         html, body {
             width: 100%;
@@ -176,116 +177,115 @@
 </div>
 
 <script type="text/javascript">
-    class CallLog {
-        /**
-         * @param {Array<Call>} calls
-         * @param {string} name
-         */
-        constructor(calls, name) {
-            this.calls = calls;
-            this.name = name;
-        }
-
-        downloadCSV() {
-            let buffer = '';
-
-            // Should we have CSV titles and what not?
-
-            buffer += this.calls.map(c => c.toCSVString()).join('\n');
-
-            let element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(buffer));
-            element.setAttribute('download', this.name + '.csv');
-
-            element.style.display = 'none';
-            document.body.appendChild(element);
-
-            element.click();
-
-            document.body.removeChild(element);
-        }
-    }
-
-    function zeroPad(number) {
-        number = number || 0;
-        return number < 10 ? ('0' + number) : number
-    }
-
-    function splitByBase(num, base) {
-        let smallerMag = num % base;
-        let largerMag = (num - smallerMag) / base;
-
-        return [largerMag, smallerMag]
-    }
-
-    const TYPE_MAP = {
-        '1': 'Incoming',
-        '2': 'Missed',
-        '3': 'Outgoing'
-    };
-
-    class Call {
-        /**
-         * @param {string} phoneNumber
-         * @param {string} contactName
-         * @param {number} type
-         * @param {number} duration
-         * @param {number} timestamp
-         * @param {string} readableDate
-         */
-        constructor(phoneNumber, contactName, type, duration, timestamp, readableDate) {
-            this.phone = phoneNumber;
-            this.contact = contactName;
-            this.duration = duration;
-            this.timestamp = parseInt(timestamp);
-            this.dateString = (new Date(this.timestamp)).toString();
-            this.type = type;
-            this.typeString = TYPE_MAP[this.type] || `UNKNOWN ${this.type}`;
-
-            // create our duration string
-            let hours, minutes, seconds;
-            [minutes, seconds] = splitByBase(this.duration, 60);
-            if (minutes > 60) {
-                [hours, minutes] = splitByBase(minutes, 60)
+    (function($, moment) {
+        class CallLog {
+            /**
+             * @param {Array<Call>} calls
+             * @param {string} name
+             */
+            constructor(calls, name) {
+                this.calls = calls;
+                this.name = name;
             }
-            this.durationString = `${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)}`
+
+            downloadCSV() {
+                let buffer = '';
+
+                // Should we have CSV titles and what not?
+
+                buffer += this.calls.map(c => c.toCSVString()).join('\n');
+
+                let element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(buffer));
+                element.setAttribute('download', this.name + '.csv');
+
+                element.style.display = 'none';
+                document.body.appendChild(element);
+
+                element.click();
+
+                document.body.removeChild(element);
+            }
         }
 
-        /**
-         * @param {Array<string>?} order
-         * @returns {string}
-         */
-        toCSVString(order) {
-            return `"${this.toArray(order).join('","')}"`;
+        function zeroPad(number) {
+            number = number || 0;
+            return number < 10 ? ('0' + number) : number
         }
 
-        /**
-         * @param {Array<string>?} order
-         * @returns {Array<string>}
-         */
-        toArray(order) {
-            order = order || ['dateString', 'contact', 'phone', 'typeString', 'durationString'];
-            return order.map(key => this[key])
+        function splitByBase(num, base) {
+            let smallerMag = num % base;
+            let largerMag = (num - smallerMag) / base;
+
+            return [largerMag, smallerMag]
         }
 
-        /**
-         * @param {ChildNode} node
-         * @constructor
-         */
-        static FromCallNode(node) {
-            return new Call(
-                node.getAttribute('number'),
-                node.getAttribute('contact_name'),
-                node.getAttribute('type'),
-                node.getAttribute('duration'),
-                node.getAttribute('date'),
-                node.getAttribute('readable_date'),
-            );
+        const TYPE_MAP = {
+            '1': 'Incoming',
+            '2': 'Missed',
+            '3': 'Outgoing'
+        };
+
+        class Call {
+            /**
+             * @param {string} phoneNumber
+             * @param {string} contactName
+             * @param {number} type
+             * @param {number} duration
+             * @param {number} timestamp
+             * @param {string} readableDate
+             */
+            constructor(phoneNumber, contactName, type, duration, timestamp, readableDate) {
+                this.phone = phoneNumber;
+                this.contact = contactName;
+                this.duration = duration;
+                this.timestamp = parseInt(timestamp);
+                this.dateString = readableDate;
+                this.type = type;
+                this.typeString = TYPE_MAP[this.type] || `UNKNOWN ${this.type}`;
+
+                // create our duration string
+                let hours, minutes, seconds;
+                [minutes, seconds] = splitByBase(this.duration, 60);
+                if (minutes > 60) {
+                    [hours, minutes] = splitByBase(minutes, 60)
+                }
+                this.durationString = `${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)}`
+            }
+
+            /**
+             * @param {Array<string>?} order
+             * @returns {string}
+             */
+            toCSVString(order) {
+                return `"${this.toArray(order).join('","')}"`;
+            }
+
+            /**
+             * @param {Array<string>?} order
+             * @returns {Array<string>}
+             */
+            toArray(order) {
+                order = order || ['dateString', 'contact', 'phone', 'typeString', 'durationString'];
+                return order.map(key => this[key])
+            }
+
+            /**
+             * @param {ChildNode} node
+             * @constructor
+             */
+            static FromCallNode(node) {
+                return new Call(
+                    node.getAttribute('number'),
+                    node.getAttribute('contact_name'),
+                    node.getAttribute('type'),
+                    node.getAttribute('duration'),
+                    node.getAttribute('date'),
+                    (new moment(parseInt(node.getAttribute('date')))).format('dddd, MMMM Do YYYY, h:mm:ss a')
+                );
+            }
+
         }
-
-    }
-
-    (function($) {
         let $fileInput;
         let $dropPad;
 
@@ -406,7 +406,7 @@
             return button
         }
 
-    })(jQuery)
+    })(jQuery, moment)
 </script>
 </body>
 </html>
